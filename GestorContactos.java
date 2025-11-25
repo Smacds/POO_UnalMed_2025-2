@@ -44,7 +44,7 @@ public class GestorContactos extends JFrame implements ActionListener {
         JPanel panelBotones = new JPanel(new FlowLayout());
 
         btnAgregar = new JButton("Agregar");
-        btnLeer = new JButton("Leer Todos");
+        btnLeer = new JButton("Leer"); // Nota: El texto sigue igual por instrucción, pero ahora busca.
         btnActualizar = new JButton("Actualizar");
         btnEliminar = new JButton("Eliminar");
         btnLimpiar = new JButton("Limpiar Campos");
@@ -150,9 +150,16 @@ public class GestorContactos extends JFrame implements ActionListener {
         }
     }
 
-    // OPERACIÓN 2: LEER
+    // OPERACIÓN 2: LEER (MODIFICADA PARA BUSCAR POR NOMBRE)
     private void leerContactos() {
-        areaSalida.setText(""); // Limpiar pantalla
+        String nombreBuscado = txtNombre.getText().trim();
+
+        if (nombreBuscado.isEmpty()) {
+            areaSalida.setText("Por favor, ingrese un Nombre en el campo de texto para buscar.");
+            return;
+        }
+
+        areaSalida.setText("");
         File file = new File(RUTA_ARCHIVO);
 
         if (!file.exists()) {
@@ -161,8 +168,9 @@ public class GestorContactos extends JFrame implements ActionListener {
         }
 
         try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
-            areaSalida.append("--- LISTA DE CONTACTOS ---\n");
+            boolean encontrado = false;
             raf.seek(0);
+
             while (raf.getFilePointer() < raf.length()) {
                 String linea = raf.readLine();
                 if (linea == null)
@@ -170,9 +178,27 @@ public class GestorContactos extends JFrame implements ActionListener {
 
                 String[] partes = linea.split(SEPARADOR);
                 if (partes.length >= 2) {
-                    areaSalida.append("Nombre: " + partes[0] + " | Número: " + partes[1] + "\n");
+                    String nombreActual = partes[0];
+                    String numeroActual = partes[1];
+
+                    if (nombreActual.equals(nombreBuscado)) {
+                        areaSalida.setText("--- CONTACTO ENCONTRADO ---\n");
+                        areaSalida.append("Nombre: " + nombreActual + "\n");
+                        areaSalida.append("Número: " + numeroActual + "\n");
+                        
+                        txtNumero.setText(numeroActual); 
+                        
+                        encontrado = true;
+                        break; 
+                    }
                 }
             }
+
+            if (!encontrado) {
+                areaSalida.setText("No se encontró ningún contacto con el nombre: " + nombreBuscado);
+                txtNumero.setText(""); 
+            }
+
         } catch (IOException io) {
             areaSalida.setText("Error al leer: " + io.getMessage());
         }
