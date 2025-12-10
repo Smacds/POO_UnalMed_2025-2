@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from tkcalendar import DateEntry  # Librería externa necesaria
+from tkcalendar import DateEntry 
 
 # --- 1. CLASE DE DATOS ---
 class Contacto:
